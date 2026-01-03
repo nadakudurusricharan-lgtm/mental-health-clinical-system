@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Mental Health Clinical Assessment System</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: radial-gradient(circle at top, #0f2027, #000);
+    color: white;
+    min-height: 100vh;
+}
+
+.container {
+    padding: 40px;
+    text-align: center;
+}
+
+h1 {
+    font-size: 2.8em;
+    text-shadow: 0 0 25px cyan;
+}
+
+.identity {
+    margin: 20px auto;
+    padding: 15px;
+    border-radius: 15px;
+    background: rgba(255,255,255,0.06);
+    display: inline-block;
+}
+
+.card {
+    margin: 30px auto;
+    width: 480px;
+    padding: 30px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 20px;
+    box-shadow: 0 0 35px rgba(0,255,255,0.4);
+}
+
+input, select {
+    width: 95%;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 10px;
+    border: none;
+    font-size: 1em;
+}
+
+button {
+    margin-top: 15px;
+    padding: 14px 40px;
+    border-radius: 30px;
+    background: cyan;
+    font-size: 1em;
+    cursor: pointer;
+    box-shadow: 0 0 25px cyan;
+}
+
+.report {
+    white-space: pre-line;
+    text-align: left;
+    margin: 30px auto;
+    max-width: 900px;
+    padding: 30px;
+    background: rgba(0,0,0,0.65);
+    border-left: 5px solid cyan;
+    border-radius: 15px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<h1>🧠 Mental Health Clinical Assessment</h1>
+
+<div class="identity">
+    <h3>Sricharan Nadakuduru</h3>
+    <p>CSD | Data Science Project | 2026</p>
+</div>
+
+<div class="card">
+<form method="post">
+
+<input type="number" name="age" placeholder="Age (1–100)" min="1" max="100" required>
+
+<select name="stress" required>
+    <option value="">Stress Level</option>
+    <option>Low</option>
+    <option>Medium</option>
+    <option>High</option>
+</select>
+
+<select name="mood" required>
+    <option value="">Mood Type</option>
+    <option>Calm</option>
+    <option>Active</option>
+    <option>Hyperactive</option>
+</select>
+
+<input type="number" name="sleep" placeholder="Sleep Hours per Day" required>
+<input type="number" name="study" placeholder="Study Hours per Day" required>
+
+<select name="activity" required>
+    <option value="">Physical Activity Level</option>
+    <option>Low</option>
+    <option>Moderate</option>
+    <option>High</option>
+</select>
+
+<input type="number" name="screen" placeholder="Screen Time (hours/day)" required>
+
+<button type="submit">Generate Doctor Report</button>
+</form>
+</div>
+
+{% if result %}
+<div class="report">
+{{ result }}
+</div>
+{% endif %}
+
+</div>
+
+</body>
+</html>
+
+
+

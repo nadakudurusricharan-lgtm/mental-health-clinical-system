@@ -1,0 +1,10 @@
+sleep_hours,study_hours,stress_level,mood_score,risk
+4,8,5,1,High
+5,7,5,2,High
+6,6,4,3,Medium
+7,6,3,4,Medium
+8,5,2,4,Low
+9,4,1,5,Low
+5,8,4,2,High
+6,7,3,3,Medium
+8,4,2,5,Low
