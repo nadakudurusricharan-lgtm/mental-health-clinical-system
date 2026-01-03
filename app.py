@@ -141,7 +141,8 @@ pre {{
 
 <body>
 <h1>🧠 Mental Health Clinical System</h1>
-<h3>Sricharan Nadakuduru | CSD | 2026</h3>
+<h3>SRICHARAN NADAKUDURU<br>CSD – KNRR College Project 2026</h3>
+
 
 <div class="card">
 <form method="post">
@@ -186,4 +187,5 @@ pre {{
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
+
 
