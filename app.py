@@ -1,49 +1,98 @@
-from flask import Flask, request
+from flask import Flask, request, Response
 import os
 
 app = Flask(__name__)
 
-HTML_PAGE = """
+def doctor_report(age, stress, mood, sleep, study, activity, screen):
+    risk = 0
+    report = "DOCTOR CLINICAL REPORT\n\n"
+
+    if stress == "High": risk += 3
+    elif stress == "Medium": risk += 2
+
+    if mood == "Hyperactive": risk += 2
+    elif mood == "Active": risk += 1
+
+    if sleep < 6: risk += 3
+    elif sleep < 7: risk += 2
+
+    if study > 8: risk += 2
+    if activity == "Low": risk += 2
+    if screen > 7: risk += 2
+
+    if risk >= 10:
+        status = "HIGH RISK"
+        advice = "Immediate stress reduction, proper sleep, counselling advised."
+    elif risk >= 6:
+        status = "MODERATE RISK"
+        advice = "Improve lifestyle balance and reduce overload."
+    else:
+        status = "STABLE"
+        advice = "Maintain current healthy routine."
+
+    report += f"Risk Level: {status}\n\nDoctor Advice:\n{advice}"
+    return report
+
+@app.route("/", methods=["GET", "POST", "HEAD"])
+def home():
+    if request.method == "HEAD":
+        return Response(status=200)
+
+    result_html = ""
+
+    if request.method == "POST":
+        report = doctor_report(
+            int(request.form["age"]),
+            request.form["stress"],
+            request.form["mood"],
+            int(request.form["sleep"]),
+            int(request.form["study"]),
+            request.form["activity"],
+            int(request.form["screen"])
+        )
+        result_html = f"<pre>{report}</pre>"
+
+    return f"""
 <!DOCTYPE html>
 <html>
 <head>
 <title>Mental Health Clinical Assessment</title>
 <style>
-body {
+body {{
     font-family: Arial, sans-serif;
     background: radial-gradient(circle at top, #0f2027, #000);
     color: white;
     text-align: center;
     padding: 40px;
-}
-.card {
+}}
+.card {{
     width: 420px;
     margin: auto;
     padding: 25px;
     background: rgba(255,255,255,0.1);
     border-radius: 15px;
-}
-input, select {
+}}
+input, select {{
     width: 95%;
     padding: 10px;
     margin: 8px 0;
     border-radius: 8px;
     border: none;
-}
-button {
+}}
+button {{
     padding: 12px 30px;
     border-radius: 25px;
     background: cyan;
     border: none;
     cursor: pointer;
-}
-pre {
+}}
+pre {{
     text-align: left;
     margin-top: 25px;
     background: rgba(0,0,0,0.6);
     padding: 20px;
     border-left: 4px solid cyan;
-}
+}}
 </style>
 </head>
 
@@ -85,64 +134,12 @@ pre {
 </form>
 </div>
 
-{result}
+{result_html}
 
 </body>
 </html>
 """
 
-def doctor_report(age, stress, mood, sleep, study, activity, screen):
-    risk = 0
-    report = "DOCTOR CLINICAL REPORT\\n\\n"
-
-    if stress == "High": risk += 3
-    elif stress == "Medium": risk += 2
-
-    if mood == "Hyperactive": risk += 2
-    elif mood == "Active": risk += 1
-
-    if sleep < 6: risk += 3
-    elif sleep < 7: risk += 2
-
-    if study > 8: risk += 2
-    if activity == "Low": risk += 2
-    if screen > 7: risk += 2
-
-    if risk >= 10:
-        status = "HIGH RISK"
-        advice = "Immediate stress reduction, proper sleep, counselling advised."
-    elif risk >= 6:
-        status = "MODERATE RISK"
-        advice = "Improve lifestyle balance and reduce overload."
-    else:
-        status = "STABLE"
-        advice = "Maintain current healthy routine."
-
-    report += f"Risk Level: {status}\\n\\nDoctor Advice:\\n{advice}"
-    return f"<pre>{report}</pre>"
-
-from flask import Response
-
-@app.route("/", methods=["GET", "POST", "HEAD"])
-def home():
-    if request.method == "HEAD":
-        return Response(status=200)
-
-    result = ""
-    if request.method == "POST":
-        result = doctor_report(
-            int(request.form["age"]),
-            request.form["stress"],
-            request.form["mood"],
-            int(request.form["sleep"]),
-            int(request.form["study"]),
-            request.form["activity"],
-            int(request.form["screen"])
-        )
-    return HTML_PAGE.format(result=result)
-
-
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
-
