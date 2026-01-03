@@ -1,22 +1,19 @@
 from flask import Flask, render_template, request
+import os
 
 app = Flask(__name__)
 
 def doctor_report(age, stress, mood, sleep, study, activity, screen):
     report = ""
 
-    # AGE CONTEXT
-    report += f"PATIENT PROFILE:\n"
-    report += f"Age Group: {age} years\n\n"
+    report += "PATIENT PROFILE:\n"
+    report += f"Age: {age} years\n\n"
 
-    # INITIAL ASSESSMENT
     report += "CLINICAL ASSESSMENT:\n"
-
     risk_score = 0
 
-    # Stress
     if stress == "High":
-        report += "- High perceived stress detected.\n"
+        report += "- High stress levels detected.\n"
         risk_score += 3
     elif stress == "Medium":
         report += "- Moderate stress levels detected.\n"
@@ -25,63 +22,57 @@ def doctor_report(age, stress, mood, sleep, study, activity, screen):
         report += "- Stress levels appear controlled.\n"
         risk_score += 1
 
-    # Mood
     if mood == "Hyperactive":
-        report += "- Hyperactive mood indicates possible mental overload.\n"
+        report += "- Hyperactive mood suggests mental overload.\n"
         risk_score += 2
     elif mood == "Active":
-        report += "- Active mood is acceptable but needs balance.\n"
+        report += "- Active mood requires balance.\n"
         risk_score += 1
     else:
         report += "- Calm mood indicates emotional stability.\n"
 
-    # Sleep
     if sleep < 6:
-        report += "- Inadequate sleep duration (below healthy range).\n"
+        report += "- Inadequate sleep duration.\n"
         risk_score += 3
     elif sleep < 7:
         report += "- Slightly reduced sleep duration.\n"
         risk_score += 2
     else:
-        report += "- Sleep duration is within healthy range.\n"
+        report += "- Healthy sleep duration.\n"
 
-    # Study Load
     if study > 8:
         report += "- Excessive study load detected.\n"
         risk_score += 2
     elif study > 6:
-        report += "- Moderate academic load.\n"
+        report += "- Moderate study load.\n"
         risk_score += 1
 
-    # Physical Activity
     if activity == "Low":
-        report += "- Low physical activity contributes to mental fatigue.\n"
+        report += "- Low physical activity.\n"
         risk_score += 2
     elif activity == "Moderate":
-        report += "- Moderate physical activity supports mental health.\n"
+        report += "- Moderate physical activity.\n"
     else:
-        report += "- Good physical activity level detected.\n"
+        report += "- Good physical activity level.\n"
 
-    # Screen Time
     if screen > 7:
-        report += "- Excessive screen exposure observed.\n"
+        report += "- Excessive screen time.\n"
         risk_score += 2
     elif screen > 5:
         report += "- Moderate screen exposure.\n"
         risk_score += 1
 
-    # FINAL RISK
     report += "\nFINAL CLINICAL OPINION:\n"
 
     if risk_score >= 10:
         report += (
             "Overall mental health risk is HIGH.\n\n"
             "DOCTOR'S ADVICE:\n"
-            "- Immediate reduction of mental and screen overload\n"
-            "- Minimum 7–8 hours of sleep daily\n"
-            "- Daily physical activity (at least 30 minutes)\n"
-            "- Stress management techniques recommended\n"
-            "- Counselling support strongly advised\n"
+            "- Immediate stress reduction required\n"
+            "- Minimum 7–8 hours sleep daily\n"
+            "- Reduce screen time\n"
+            "- Increase physical activity\n"
+            "- Counselling strongly recommended\n"
         )
     elif risk_score >= 6:
         report += (
@@ -89,22 +80,17 @@ def doctor_report(age, stress, mood, sleep, study, activity, screen):
             "DOCTOR'S ADVICE:\n"
             "- Improve sleep consistency\n"
             "- Balance study and relaxation\n"
-            "- Reduce screen exposure before bedtime\n"
-            "- Monitor stress weekly\n"
+            "- Monitor stress levels weekly\n"
         )
     else:
         report += (
             "Overall mental health status is STABLE.\n\n"
             "DOCTOR'S ADVICE:\n"
             "- Maintain current healthy routine\n"
-            "- Continue balanced lifestyle\n"
-            "- Avoid sudden increases in workload\n"
+            "- Avoid sudden workload increases\n"
         )
 
-    report += (
-        "\nDISCLAIMER:\n"
-        "This is a preventive clinical assessment system and not a medical diagnosis."
-    )
+    report += "\nDISCLAIMER:\nThis is a preventive assessment, not a medical diagnosis."
 
     return report
 
@@ -122,13 +108,14 @@ def home():
         activity = request.form["activity"]
         screen = int(request.form["screen"])
 
-        result = doctor_report(age, stress, mood, sleep, study, activity, screen)
-return render_template("index.html", result=result)
+        result = doctor_report(
+            age, stress, mood, sleep, study, activity, screen
+        )
 
-import os
+    return render_template("index.html", result=result)
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
-   
 
