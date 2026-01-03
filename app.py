@@ -121,8 +121,13 @@ def doctor_report(age, stress, mood, sleep, study, activity, screen):
     report += f"Risk Level: {status}\\n\\nDoctor Advice:\\n{advice}"
     return f"<pre>{report}</pre>"
 
-@app.route("/", methods=["GET", "POST"])
+from flask import Response
+
+@app.route("/", methods=["GET", "POST", "HEAD"])
 def home():
+    if request.method == "HEAD":
+        return Response(status=200)
+
     result = ""
     if request.method == "POST":
         result = doctor_report(
@@ -136,6 +141,8 @@ def home():
         )
     return HTML_PAGE.format(result=result)
 
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
+
