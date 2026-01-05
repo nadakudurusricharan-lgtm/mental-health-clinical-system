@@ -1,14 +1,13 @@
 from flask import Flask, request, Response
 import os
-import openai
+from openai import OpenAI
 
-# Load OpenAI API Key from environment (Render)
-openai.api_key = os.environ.get("OPENAI_API_KEY")
+# Create OpenAI client using environment variable
+client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 app = Flask(__name__)
 
 def doctor_report(age, stress, mood, sleep, study, activity, screen):
-
     prompt = f"""
 You are a professional mental health doctor.
 
@@ -39,7 +38,6 @@ Give reassurance and advice.
     return response.choices[0].message.content
 
 
-
 @app.route("/", methods=["GET", "POST", "HEAD"])
 def home():
     if request.method == "HEAD":
@@ -59,7 +57,7 @@ def home():
         )
         result_html = f"<pre>{report}</pre>"
 
-    return f"""
+    html = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -67,39 +65,19 @@ def home():
 <title>AI Mental Health Clinical System</title>
 
 <style>
-* {
-    box-sizing: border-box;
-}
-
 body {
     margin: 0;
     font-family: 'Segoe UI', sans-serif;
-    overflow-x: hidden;
-    color: white;
     background: linear-gradient(120deg, #020024, #090979, #00d4ff);
     background-size: 400% 400%;
     animation: bgMove 15s ease infinite;
+    color: white;
 }
 
 @keyframes bgMove {
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
-}
-
-.particles span {
-    position: fixed;
-    width: 8px;
-    height: 8px;
-    background: cyan;
-    border-radius: 50%;
-    animation: float 10s linear infinite;
-    opacity: 0.4;
-}
-
-@keyframes float {
-    0% { transform: translateY(100vh); }
-    100% { transform: translateY(-10vh); }
 }
 
 .container {
@@ -161,7 +139,6 @@ pre {
     background: rgba(0,0,0,0.6);
     border-left: 5px solid cyan;
     border-radius: 12px;
-    animation: fadeIn 1.5s ease;
     white-space: pre-wrap;
     text-align: left;
 }
@@ -175,15 +152,6 @@ footer {
 </head>
 
 <body>
-
-<div class="particles">
-    <span style="left:10%;animation-duration:12s"></span>
-    <span style="left:25%;animation-duration:15s"></span>
-    <span style="left:40%;animation-duration:18s"></span>
-    <span style="left:60%;animation-duration:14s"></span>
-    <span style="left:80%;animation-duration:20s"></span>
-</div>
-
 <div class="container">
     <h1>🧠 AI Mental Health Clinical System</h1>
     <h3>SRICHARAN NADAKUDURU<br>CSD | College Project 2026</h3>
@@ -222,21 +190,20 @@ footer {
         </form>
     </div>
 
-    {result_html}
+    <!-- AI OUTPUT -->
+    {{RESULT}}
 
     <footer>
         ⚠️ AI-based early assessment. Not a medical diagnosis.
     </footer>
 </div>
-
 </body>
 </html>
-
 """
+
+    return html.replace("{{RESULT}}", result_html)
 
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
-
-
