@@ -1,79 +1,42 @@
 from flask import Flask, request, Response
 import os
+import openai
+
+# Load OpenAI API Key from environment (Render)
+openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 app = Flask(__name__)
 
 def doctor_report(age, stress, mood, sleep, study, activity, screen):
-    risk = 0
-    report = ""
 
-    # Risk scoring
-    if stress == "High": risk += 3
-    elif stress == "Medium": risk += 2
+    prompt = f"""
+You are a professional mental health doctor.
 
-    if mood == "Hyperactive": risk += 2
-    elif mood == "Active": risk += 1
+Patient details:
+Age: {age}
+Stress level: {stress}
+Mood: {mood}
+Sleep hours per day: {sleep}
+Study hours per day: {study}
+Physical activity level: {activity}
+Screen time hours per day: {screen}
 
-    if sleep < 6: risk += 3
-    elif sleep < 7: risk += 2
+Give a clinical mental health assessment.
+Write 6 to 7 meaningful lines.
+Use professional but simple doctor language.
+Give reassurance and clear advice.
+"""
 
-    if study > 8: risk += 2
-    if activity == "Low": risk += 2
-    if screen > 7: risk += 2
-
-    # Doctor-style report
-    report += "CLINICAL MENTAL HEALTH ASSESSMENT\n\n"
-    report += f"Age Group Analysis: At {age} years, mental health is highly influenced by lifestyle patterns.\n\n"
-
-    if risk >= 10:
-        report += (
-            "Overall Risk Level: HIGH\n\n"
-            "Clinical Interpretation:\n"
-            "- Indicators suggest mental overload and elevated stress response.\n"
-            "- Irregular sleep and prolonged screen exposure are major contributors.\n"
-            "- Current routine may lead to burnout if continued.\n\n"
-            "Doctor’s Advice:\n"
-            "- Ensure 7–8 hours of uninterrupted sleep daily.\n"
-            "- Reduce screen usage, especially before bedtime.\n"
-            "- Introduce physical activity (30 minutes/day).\n"
-            "- Practice relaxation techniques such as breathing or meditation.\n"
-            "- Academic workload should be spaced with proper breaks.\n"
-            "- If symptoms persist, professional counselling is strongly advised.\n"
-        )
-
-    elif risk >= 6:
-        report += (
-            "Overall Risk Level: MODERATE\n\n"
-            "Clinical Interpretation:\n"
-            "- Mild to moderate stress patterns detected.\n"
-            "- Lifestyle imbalance is present but reversible.\n\n"
-            "Doctor’s Advice:\n"
-            "- Maintain consistent sleep timings (minimum 7 hours).\n"
-            "- Balance study hours with short mental breaks.\n"
-            "- Limit continuous screen exposure.\n"
-            "- Engage in light physical activities.\n"
-            "- Monitor stress levels weekly.\n"
-        )
-
-    else:
-        report += (
-            "Overall Risk Level: STABLE\n\n"
-            "Clinical Interpretation:\n"
-            "- Mental health indicators are within healthy limits.\n"
-            "- Current lifestyle supports emotional stability.\n\n"
-            "Doctor’s Advice:\n"
-            "- Continue maintaining a balanced routine.\n"
-            "- Avoid sudden increases in workload.\n"
-            "- Preserve good sleep hygiene.\n"
-            "- Stay physically and socially active.\n"
-        )
-
-    report += (
-        "\nNote:\n"
-        "This assessment is preventive in nature and not a medical diagnosis."
+    response = openai.ChatCompletion.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": "You are a licensed mental health professional."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=300
     )
 
-    return report
+    return response.choices[0].message["content"]
 
 
 @app.route("/", methods=["GET", "POST", "HEAD"])
@@ -99,7 +62,7 @@ def home():
 <!DOCTYPE html>
 <html>
 <head>
-<title>Mental Health Clinical Assessment</title>
+<title>AI Mental Health Clinical System</title>
 <style>
 body {{
     font-family: Arial, sans-serif;
@@ -109,7 +72,7 @@ body {{
     padding: 40px;
 }}
 .card {{
-    width: 420px;
+    width: 440px;
     margin: auto;
     padding: 25px;
     background: rgba(255,255,255,0.1);
@@ -140,9 +103,8 @@ pre {{
 </head>
 
 <body>
-<h1>🧠 Mental Health Clinical System</h1>
-<h3>SRICHARAN NADAKUDURU<br>CSD – KNRR College Project 2026</h3>
-
+<h1>🧠 AI Mental Health Clinical System</h1>
+<h3>SRICHARAN NADAKUDURU<br>CSD – College Project 2026</h3>
 
 <div class="card">
 <form method="post">
@@ -174,7 +136,7 @@ pre {{
 
 <input type="number" name="screen" placeholder="Screen Time (hrs/day)" required>
 
-<button type="submit">Generate Doctor Report</button>
+<button type="submit">Generate AI Doctor Report</button>
 </form>
 </div>
 
@@ -184,8 +146,7 @@ pre {{
 </html>
 """
 
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
-
-
