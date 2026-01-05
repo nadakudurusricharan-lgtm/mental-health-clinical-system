@@ -21,13 +21,13 @@ Study hours per day: {study}
 Physical activity level: {activity}
 Screen time hours per day: {screen}
 
-Give a clinical mental health assessment.
+Give a clear clinical mental health assessment.
 Write 6 to 7 meaningful lines.
 Use professional but simple doctor language.
-Give reassurance and clear advice.
+Give reassurance and advice.
 """
 
-    response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
             {"role": "system", "content": "You are a licensed mental health professional."},
@@ -36,7 +36,8 @@ Give reassurance and clear advice.
         max_tokens=300
     )
 
-    return response.choices[0].message["content"]
+    return response.choices[0].message.content
+
 
 
 @app.route("/", methods=["GET", "POST", "HEAD"])
@@ -150,3 +151,4 @@ pre {{
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
+
