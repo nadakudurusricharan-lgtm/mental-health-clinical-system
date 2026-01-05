@@ -1,208 +1,168 @@
-from flask import Flask, request, Response
+from flask import Flask
 import os
-from openai import OpenAI
-
-# Create OpenAI client using environment variable
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 app = Flask(__name__)
 
-def doctor_report(age, stress, mood, sleep, study, activity, screen):
-    prompt = f"""
-You are a professional mental health doctor.
-
-Patient details:
-Age: {age}
-Stress level: {stress}
-Mood: {mood}
-Sleep hours per day: {sleep}
-Study hours per day: {study}
-Physical activity level: {activity}
-Screen time hours per day: {screen}
-
-Give a clear clinical mental health assessment.
-Write 6 to 7 meaningful lines.
-Use professional but simple doctor language.
-Give reassurance and advice.
-"""
-
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "system", "content": "You are a licensed mental health professional."},
-            {"role": "user", "content": prompt}
-        ],
-        max_tokens=300
-    )
-
-    return response.choices[0].message.content
-
-
-@app.route("/", methods=["GET", "POST", "HEAD"])
+@app.route("/")
 def home():
-    if request.method == "HEAD":
-        return Response(status=200)
-
-    result_html = ""
-
-    if request.method == "POST":
-        report = doctor_report(
-            int(request.form["age"]),
-            request.form["stress"],
-            request.form["mood"],
-            int(request.form["sleep"]),
-            int(request.form["study"]),
-            request.form["activity"],
-            int(request.form["screen"])
-        )
-        result_html = f"<pre>{report}</pre>"
-
-    html = """
+    return """
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>AI Mental Health Clinical System</title>
+<title>Premium Mental Wellness Portal</title>
 
 <style>
-body {
+/* -------- RESET -------- */
+* {
     margin: 0;
-    font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(120deg, #020024, #090979, #00d4ff);
-    background-size: 400% 400%;
-    animation: bgMove 15s ease infinite;
-    color: white;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-@keyframes bgMove {
+/* -------- BODY -------- */
+body {
+    height: 100vh;
+    background: linear-gradient(-45deg, #0f2027, #203a43, #2c5364, #000000);
+    background-size: 400% 400%;
+    animation: gradientMove 18s ease infinite;
+    font-family: 'Segoe UI', sans-serif;
+    color: white;
+    overflow: hidden;
+}
+
+/* -------- BACKGROUND ANIMATION -------- */
+@keyframes gradientMove {
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
 }
 
+/* -------- FLOATING ORBS -------- */
+.orb {
+    position: absolute;
+    width: 220px;
+    height: 220px;
+    background: radial-gradient(circle, rgba(0,255,255,0.6), transparent);
+    border-radius: 50%;
+    filter: blur(40px);
+    animation: float 14s infinite alternate ease-in-out;
+}
+
+.orb.one { top: 10%; left: 15%; }
+.orb.two { bottom: 10%; right: 15%; animation-delay: 4s; }
+.orb.three { top: 50%; right: 40%; animation-delay: 8s; }
+
+@keyframes float {
+    from { transform: translateY(0px); }
+    to { transform: translateY(-120px); }
+}
+
+/* -------- MAIN CARD -------- */
 .container {
+    position: relative;
+    z-index: 2;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.card {
+    width: 520px;
+    padding: 40px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 25px;
+    backdrop-filter: blur(15px);
+    box-shadow: 0 0 60px rgba(0,255,255,0.35);
     text-align: center;
-    padding: 40px 20px;
     animation: fadeIn 2s ease;
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
 }
 
-.glass {
-    width: 450px;
-    margin: auto;
-    padding: 30px;
-    border-radius: 20px;
-    background: rgba(255,255,255,0.15);
-    backdrop-filter: blur(15px);
-    box-shadow: 0 0 40px rgba(0,255,255,0.5);
-    transition: transform 0.4s;
+/* -------- TEXT -------- */
+h1 {
+    font-size: 2.6em;
+    text-shadow: 0 0 25px cyan;
 }
 
-.glass:hover {
-    transform: scale(1.03);
+.subtitle {
+    margin-top: 10px;
+    font-size: 1.1em;
+    opacity: 0.9;
 }
 
-input, select {
-    width: 95%;
-    padding: 12px;
-    margin: 10px 0;
-    border-radius: 10px;
-    border: none;
+.identity {
+    margin-top: 25px;
+    padding: 15px;
+    border-radius: 15px;
+    background: rgba(0,0,0,0.4);
+    box-shadow: inset 0 0 20px rgba(0,255,255,0.2);
 }
 
+.identity h3 {
+    color: cyan;
+}
+
+/* -------- BUTTON -------- */
 button {
-    margin-top: 15px;
-    padding: 14px 35px;
-    border-radius: 30px;
-    background: cyan;
-    border: none;
+    margin-top: 30px;
+    padding: 14px 40px;
     font-size: 1em;
+    border: none;
+    border-radius: 30px;
+    background: linear-gradient(90deg, cyan, #00ffaa);
+    color: black;
     cursor: pointer;
     box-shadow: 0 0 25px cyan;
-    animation: pulse 2s infinite;
+    transition: transform 0.3s, box-shadow 0.3s;
 }
 
-@keyframes pulse {
-    0% { box-shadow: 0 0 10px cyan; }
-    50% { box-shadow: 0 0 35px cyan; }
-    100% { box-shadow: 0 0 10px cyan; }
+button:hover {
+    transform: scale(1.08);
+    box-shadow: 0 0 45px cyan;
 }
 
-pre {
-    max-width: 800px;
-    margin: 40px auto;
-    padding: 25px;
-    background: rgba(0,0,0,0.6);
-    border-left: 5px solid cyan;
-    border-radius: 12px;
-    white-space: pre-wrap;
-    text-align: left;
-}
-
-footer {
-    margin-top: 40px;
-    opacity: 0.7;
-    font-size: 0.9em;
+/* -------- FOOTER -------- */
+.footer {
+    margin-top: 20px;
+    font-size: 0.85em;
+    opacity: 0.6;
 }
 </style>
 </head>
 
 <body>
+
+<div class="orb one"></div>
+<div class="orb two"></div>
+<div class="orb three"></div>
+
 <div class="container">
-    <h1>🧠 AI Mental Health Clinical System</h1>
-    <h3>SRICHARAN NADAKUDURU<br>CSD | College Project 2026</h3>
+    <div class="card">
+        <h1>🌌 Mental Wellness Experience</h1>
+        <p class="subtitle">A Premium Cinematic Interface</p>
 
-    <div class="glass">
-        <form method="post">
-            <input type="number" name="age" placeholder="Age (1–100)" required>
+        <div class="identity">
+            <h3>SRICHARAN NADAKUDURU</h3>
+            <p>CSD | College Project | 2026</p>
+        </div>
 
-            <select name="stress" required>
-                <option value="">Stress Level</option>
-                <option>Low</option>
-                <option>Medium</option>
-                <option>High</option>
-            </select>
+        <button>Explore Experience</button>
 
-            <select name="mood" required>
-                <option value="">Mood Type</option>
-                <option>Calm</option>
-                <option>Active</option>
-                <option>Hyperactive</option>
-            </select>
-
-            <input type="number" name="sleep" placeholder="Sleep Hours" required>
-            <input type="number" name="study" placeholder="Study Hours" required>
-
-            <select name="activity" required>
-                <option value="">Physical Activity</option>
-                <option>Low</option>
-                <option>Moderate</option>
-                <option>High</option>
-            </select>
-
-            <input type="number" name="screen" placeholder="Screen Time (hrs/day)" required>
-
-            <button type="submit">Generate AI Doctor Report</button>
-        </form>
+        <div class="footer">
+            Designed with motion, depth & visual intelligence
+        </div>
     </div>
-
-    <!-- AI OUTPUT -->
-    {{RESULT}}
-
-    <footer>
-        ⚠️ AI-based early assessment. Not a medical diagnosis.
-    </footer>
 </div>
+
 </body>
 </html>
 """
-
-    return html.replace("{{RESULT}}", result_html)
-
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
